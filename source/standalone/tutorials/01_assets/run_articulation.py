@@ -39,10 +39,16 @@ import omni.isaac.core.utils.prims as prim_utils
 import omni.isaac.lab.sim as sim_utils
 from omni.isaac.lab.assets import Articulation
 from omni.isaac.lab.sim import SimulationContext
-
+from omni.isaac.lab.assets import ArticulationCfg
+from omni.isaac.lab.actuators import ImplicitActuator, ImplicitActuatorCfg
 ##
 # Pre-defined configs
 ##
+from omni.isaac.lab.sensors import FrameTransformerCfg
+from omni.isaac.lab.sensors.frame_transformer import OffsetCfg
+from omni.isaac.lab.markers.config import FRAME_MARKER_CFG
+FRAME_MARKER_SMALL_CFG = FRAME_MARKER_CFG.copy()
+FRAME_MARKER_SMALL_CFG.markers['frame'].scale = (0.1, 0.1, 0.1)
 from omni.isaac.lab_assets import CARTPOLE_CFG  # isort:skip
 
 
@@ -57,7 +63,7 @@ def design_scene() -> tuple[dict, list[list[float]]]:
 
     # Create separate groups called "Origin1", "Origin2", "Origin3"
     # Each group will have a robot in it
-    origins = [[0.0, 0.0, 0.0], [-1.0, 0.0, 0.0]]
+    origins = [[-10.0, 0.0, 0.0], [-5.0, 0.0, 0.0]]
     # Origin 1
     prim_utils.create_prim("/World/Origin1", "Xform", translation=origins[0])
     # Origin 2
@@ -66,10 +72,74 @@ def design_scene() -> tuple[dict, list[list[float]]]:
     # Articulation
     cartpole_cfg = CARTPOLE_CFG.copy()
     cartpole_cfg.prim_path = "/World/Origin.*/Robot"
-    cartpole = Articulation(cfg=cartpole_cfg)
-
-    # return the scene information
-    scene_entities = {"cartpole": cartpole}
+    # cartpole = Articulation(cfg=cartpole_cfg)
+    from omni.isaac.lab.utils.assets import ISAAC_NUCLEUS_DIR
+    washer_cfg = ArticulationCfg(
+        prim_path="/World/Origin1/Washer",
+        spawn=sim_utils.UsdFileCfg(
+            # usd_path="/home/lr-2002/code/IsaacLab/source/extensions/omni.isaac.lab_assets/data/7130/mobility.usd",
+            usd_path="/home/lr-2002/Downloads/7130/mobility.usd",
+            # usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Sektion_Cabinet/sektion_cabinet_instanceable.usd",
+            activate_contact_sensors=False,),
+        init_state=ArticulationCfg.InitialStateCfg(
+            pos=( 0.8,0.0 , 0.4), # TODO 
+            rot=(1, 0.0, 0.0, 0),
+            joint_pos={
+                # TODO 
+                'joint_0' : 0.0,
+                # 'joint_1' : 0.0,
+                # 'joint_2' : 0.0,
+                # 'joint_3' : 0.0,
+                # 'joint_4' : 0.0,
+                # 'joint_5' : 0.0,
+            }
+        ),
+        actuators={
+                # TODO
+            'drawer': ImplicitActuatorCfg(
+                joint_names_expr=['joint_0'],
+                effort_limit=87.0,
+                velocity_limit=100.0,
+                stiffness=100.0,
+                damping=1.0,
+            )
+        }
+    )
+    washer = Articulation(cfg=washer_cfg)
+    # refrigerator = ArticulationCfg(
+    #     prim_path="/World/Origin1/Refrigerator",
+    #     spawn=sim_utils.UsdFileCfg(
+    #         usd_path="/home/lr-2002/refrigerator.usd",
+    #         activate_contact_sensors=False,),
+    #     init_state=ArticulationCfg.InitialStateCfg(
+    #         pos=(-2,0, 0.4), # TODO 
+    #         rot=(0.0, 0.0, 0.0,0.0),
+    #         joint_pos={
+    #             # TODO 
+    #             'refrigerator_54_link_joint_1': 0.0, 
+    #             "refrigerator_54_link_joint_2": 0.0,
+    #         }
+    #     ),
+    #     actuators={
+    #             # TODO
+    #         'uppper': ImplicitActuatorCfg(
+    #             joint_names_expr=['refrigerator_54_link_joint_1'],
+    #             effort_limit=87.0,
+    #             velocity_limit=100.0,
+    #             stiffness=10.0,
+    #             damping=1.0,
+    #         ),
+    #         'down': ImplicitActuatorCfg(
+    #             joint_names_expr=['refrigerator_54_link_joint_2'],
+    #             effort_limit=87.0,
+    #             velocity_limit=100.0,
+    #             stiffness=10.0,
+    #             damping=1.0,
+    #         )
+    #     }
+    # )
+    # refrigerator = Articulation(cfg=refrigerator)
+    scene_entities = { 'washer':washer}
     return scene_entities, origins
 
 
@@ -78,7 +148,7 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
     # Extract scene entities
     # note: we only do this here for readability. In general, it is better to access the entities directly from
     #   the dictionary. This dictionary is replaced by the InteractiveScene class in the next tutorial.
-    robot = entities["cartpole"]
+    # robot = entities["cartpole"]
     # Define simulation stepping
     sim_dt = sim.get_physics_dt()
     count = 0
@@ -92,29 +162,29 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
             # root state
             # we offset the root state by the origin since the states are written in simulation world frame
             # if this is not done, then the robots will be spawned at the (0, 0, 0) of the simulation world
-            root_state = robot.data.default_root_state.clone()
-            root_state[:, :3] += origins
-            robot.write_root_state_to_sim(root_state)
+            # root_state = robot.data.default_root_state.clone()
+            # root_state[:, :3] += origins
+            # robot.write_root_state_to_sim(root_state)
             # set joint positions with some noise
-            joint_pos, joint_vel = robot.data.default_joint_pos.clone(), robot.data.default_joint_vel.clone()
-            joint_pos += torch.rand_like(joint_pos) * 0.1
-            robot.write_joint_state_to_sim(joint_pos, joint_vel)
+            # joint_pos, joint_vel = robot.data.default_joint_pos.clone(), robot.data.default_joint_vel.clone()
+            # joint_pos += torch.rand_like(joint_pos) * 0.1
+            # robot.write_joint_state_to_sim(joint_pos, joint_vel)
             # clear internal buffers
-            robot.reset()
+            # robot.reset()
             print("[INFO]: Resetting robot state...")
         # Apply random action
         # -- generate random joint efforts
-        efforts = torch.randn_like(robot.data.joint_pos) * 5.0
+        # efforts = torch.randn_like(robot.data.joint_pos) * 5.0
         # -- apply action to the robot
-        robot.set_joint_effort_target(efforts)
+        # robot.set_joint_effort_target(efforts)
         # -- write data to sim
-        robot.write_data_to_sim()
+        # robot.write_data_to_sim()
         # Perform step
         sim.step()
         # Increment counter
         count += 1
         # Update buffers
-        robot.update(sim_dt)
+        # robot.update(sim_dt)
 
 
 def main():

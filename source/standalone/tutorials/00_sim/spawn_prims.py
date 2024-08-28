@@ -84,8 +84,11 @@ def design_scene():
     cfg_cuboid_deformable.func("/World/Objects/CuboidDeformable", cfg_cuboid_deformable, translation=(0.15, 0.0, 2.0))
 
     # spawn a usd file of a table into the scene
-    cfg = sim_utils.UsdFileCfg(usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Mounts/SeattleLabTable/table_instanceable.usd")
-    cfg.func("/World/Objects/Table", cfg, translation=(0.0, 0.0, 1.05))
+    # cfg = sim_utils.UsdFileCfg(usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Mounts/SeattleLabTable/table_instanceable.usd")
+    # cfg.func("/World/Objects/Table", cfg, translation=(0.0, 0.0, 1.05))
+
+    cab = sim_utils.UsdFileCfg(usd_path="/home/lr-2002/Downloads/7128/mobility.usd")
+    cab.func('/World/Objects/Washer', cab, translation=(-3, 0, 1))
 
 
 def main():

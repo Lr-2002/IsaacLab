@@ -106,7 +106,7 @@ class FrankaCabinetEnvCfg(DirectRLEnvCfg):
     cabinet = ArticulationCfg(
         prim_path="/World/envs/env_.*/Cabinet",
         spawn=sim_utils.UsdFileCfg(
-            usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Sektion_Cabinet/sektion_cabinet_instanceable.usd",
+            usd_path=f"/home/lr-2002/code/IsaacLab/source/extensions/omni.isaac.lab_assets/data/actuator/sektion_cabinet_instanceable.usd",
             activate_contact_sensors=False,
         ),
         init_state=ArticulationCfg.InitialStateCfg(

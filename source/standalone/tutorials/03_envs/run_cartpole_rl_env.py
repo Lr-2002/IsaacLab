@@ -30,13 +30,14 @@ import torch
 
 from omni.isaac.lab.envs import ManagerBasedRLEnv
 
-from omni.isaac.lab_tasks.manager_based.classic.cartpole.cartpole_env_cfg import CartpoleEnvCfg
+# from omni.isaac.lab_tasks.manager_based.classic.cartpole.cartpole_env_cfg import CartpoleEnvCfg
+from omni.isaac.lab_tasks.manager_based.manipulation.reach.reach_env_cfg import ReachEnvCfg
 
 
 def main():
     """Main function."""
     # create environment configuration
-    env_cfg = CartpoleEnvCfg()
+    env_cfg = ReachEnvCfg()
     env_cfg.scene.num_envs = args_cli.num_envs
     # setup RL environment
     env = ManagerBasedRLEnv(cfg=env_cfg)

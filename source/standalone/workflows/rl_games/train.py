@@ -54,7 +54,7 @@ from rl_games.torch_runner import Runner
 from omni.isaac.lab.utils.dict import print_dict
 from omni.isaac.lab.utils.io import dump_pickle, dump_yaml
 
-import omni.isaac.lab_tasks  # noqa: F401
+# import omni.isaac.lab_tasks  # noqa: F401
 from omni.isaac.lab_tasks.utils import load_cfg_from_registry, parse_env_cfg
 from omni.isaac.lab_tasks.utils.wrappers.rl_games import RlGamesGpuEnv, RlGamesVecEnvWrapper
 
@@ -63,7 +63,7 @@ def main():
     """Train with RL-Games agent."""
     # parse seed from command line
     args_cli_seed = args_cli.seed
-
+    # input(f'now task is {args_cli.task}' )
     # parse configuration
     env_cfg = parse_env_cfg(
         args_cli.task, use_gpu=not args_cli.cpu, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric

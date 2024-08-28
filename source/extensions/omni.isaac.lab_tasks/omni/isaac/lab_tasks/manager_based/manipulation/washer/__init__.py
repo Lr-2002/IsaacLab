@@ -1,0 +1,1 @@
+""" manipulation on open door of washer"""

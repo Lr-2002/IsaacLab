@@ -215,6 +215,7 @@ class ManagerBasedEnv:
         # prepare the managers
         # -- action manager
         self.action_manager = ActionManager(self.cfg.actions, self)
+        # input('test')
         print("[INFO] Action Manager: ", self.action_manager)
         # -- observation manager
         self.observation_manager = ObservationManager(self.cfg.observations, self)

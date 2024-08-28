@@ -40,7 +40,7 @@ FRAME_MARKER_SMALL_CFG.markers["frame"].scale = (0.10, 0.10, 0.10)
 
 
 @configclass
-class CabinetSceneCfg(InteractiveSceneCfg):
+class DoorSceneCfg(InteractiveSceneCfg):
     """Configuration for the cabinet scene with a robot and a cabinet.
 
     This is the abstract base implementation, the exact scene is defined in the derived classes
@@ -93,10 +93,11 @@ class CabinetSceneCfg(InteractiveSceneCfg):
         visualizer_cfg=FRAME_MARKER_SMALL_CFG.replace(prim_path="/Visuals/CabinetFrameTransformer"),
         target_frames=[
             FrameTransformerCfg.FrameCfg(
-                prim_path="{ENV_REGEX_NS}/Cabinet/drawer_handle_top",
-                name="drawer_handle_top",
+                prim_path="{ENV_REGEX_NS}/Cabinet/door_left_nob_link",
+                name="door_left_nob_link",
                 offset=OffsetCfg(
-                    pos=(0.305, 0.0, 0.01),
+                    pos=(0.04, 0.35, 0.19),
+                    # pos=(0.00, 0.0, 0.0),
                     rot=(0.5, 0.5, -0.5, -0.5),  # align with end-effector , ISAAC_NUCLEUS_DIRframe
                 ),
             ),
@@ -150,11 +151,11 @@ class ObservationsCfg:
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         cabinet_joint_pos = ObsTerm(
             func=mdp.joint_pos_rel,
-            params={"asset_cfg": SceneEntityCfg("cabinet", joint_names=["drawer_top_joint"])},
+            params={"asset_cfg": SceneEntityCfg("cabinet", joint_names=["door_left_joint"])},
         )
         cabinet_joint_vel = ObsTerm(
             func=mdp.joint_vel_rel,
-            params={"asset_cfg": SceneEntityCfg("cabinet", joint_names=["drawer_top_joint"])},
+            params={"asset_cfg": SceneEntityCfg("cabinet", joint_names=["door_left_joint"])},
         )
         rel_ee_drawer_distance = ObsTerm(func=mdp.rel_ee_drawer_distance)
 
@@ -180,7 +181,7 @@ class EventCfg:
             "static_friction_range": (0.8, 1.25),
             "dynamic_friction_range": (0.8, 1.25),
             "restitution_range": (0.0, 0.0),
-            "num_buckets": 16
+            "num_buckets": 16,
         },
     )
 
@@ -188,7 +189,7 @@ class EventCfg:
         func=mdp.randomize_rigid_body_material,
         mode="startup",
         params={
-            "asset_cfg": SceneEntityCfg("cabinet", body_names="drawer_handle_top"),
+            "asset_cfg": SceneEntityCfg("cabinet", body_names="door_left_nob_link"),
             "static_friction_range": (1.0, 1.25),
             "dynamic_friction_range": (1.25, 1.5),
             "restitution_range": (0.0, 0.0),
@@ -214,14 +215,14 @@ class RewardsCfg:
 
     # 1. Approach the handle
     approach_ee_handle = RewTerm(func=mdp.approach_ee_handle, weight=2.0, params={"threshold": 0.2})
-    align_ee_handle = RewTerm(func=mdp.align_ee_handle, weight=0.5)
+    align_ee_handle = RewTerm(func=mdp.align_ee_handle, weight=0.)
 
     # 2. Grasp the handle
     approach_gripper_handle = RewTerm(func=mdp.approach_gripper_handle, weight=5.0, params={"offset": MISSING})
     align_grasp_around_handle = RewTerm(func=mdp.align_grasp_around_handle, weight=0.125)
     grasp_handle = RewTerm(
         func=mdp.grasp_handle,
-        weight=0.5,
+        weight=0.8,
         params={
             "threshold": 0.03,
             "open_joint_pos": MISSING,
@@ -232,13 +233,13 @@ class RewardsCfg:
     # 3. Open the drawer
     open_drawer_bonus = RewTerm(
         func=mdp.open_drawer_bonus,
-        weight=7.5,
-        params={"asset_cfg": SceneEntityCfg("cabinet", joint_names=["drawer_top_joint"])},
+        weight=0,
+        params={"asset_cfg": SceneEntityCfg("cabinet", joint_names=["door_left_joint"])},
     )
     multi_stage_open_drawer = RewTerm(
         func=mdp.multi_stage_open_drawer,
-        weight=1.0,
-        params={"asset_cfg": SceneEntityCfg("cabinet", joint_names=["drawer_top_joint"])},
+        weight=7.0,
+        params={"asset_cfg": SceneEntityCfg("cabinet", joint_names=["door_left_joint"])},
     )
 
     # 4. Penalize actions for cosmetic reasons
@@ -259,11 +260,11 @@ class TerminationsCfg:
 
 
 @configclass
-class CabinetEnvCfg(ManagerBasedRLEnvCfg):
+class DoorEnvCfg(ManagerBasedRLEnvCfg):
     """Configuration for the cabinet environment."""
 
     # Scene settings
-    scene: CabinetSceneCfg = CabinetSceneCfg(num_envs=4096, env_spacing=2.0)
+    scene: DoorSceneCfg = DoorSceneCfg(num_envs=4096, env_spacing=2.0)
     # Basic settings
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()

@@ -16,7 +16,7 @@ import omni
 from ..device_base import DeviceBase
 
 
-class Se3Gamepad(DeviceBase):
+class Se3Gamepad:
     """A gamepad controller for sending SE(3) commands as delta poses and binary command (open/close).
 
     This class is designed to provide a gamepad controller for a robotic arm with a gripper.
